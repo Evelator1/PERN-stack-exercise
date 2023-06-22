@@ -2,11 +2,29 @@ const pool = require("../db");
 
 const getBooks = async (req, res) => {
   try {
-    const { rows } = await pool.query("SELECT * FROM books;");
+    const { limit, skip } = req.query;
+    let query = "SELECT * FROM books";
+
+    const values = [];
+    let count = 1;
+
+    if (limit) {
+      query += " LIMIT $" + count;
+      values.push(limit);
+      count++;
+    }
+
+    if (skip) {
+      query += " OFFSET $" + count;
+      values.push(skip);
+      count++;
+    }
+
+    const { rows } = await pool.query(query, values);
     res.json(rows);
   } catch (error) {
     console.log(error.message);
-    res.status(500).send("something went wrong");
+    res.status(500).send("Something went wrong");
   }
 };
 

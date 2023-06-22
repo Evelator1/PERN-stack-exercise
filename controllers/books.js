@@ -5,22 +5,28 @@ const getBooks = async (req, res) => {
     const { limit, skip } = req.query;
     let query = "SELECT * FROM books";
 
-    const values = [];
-    let count = 1;
+    // It would be better to use "parametized queries", to prevent SQL injection attacks. Like so:"
 
-    if (limit) {
-      query += " LIMIT $" + count;
-      values.push(limit);
-      count++;
+    //      const values = [];
+
+    //     if (limit !== undefined && skip !== undefined) {
+    //       query = "SELECT * FROM books LIMIT $1 OFFSET $2";
+    //       values.push(limit, skip);
+    //     }
+
+    //     const { rows } = await pool.query(query, values);
+    //     res.json(rows);
+    //   } catch (error) {
+    //     console.log(error.message);
+    //     res.status(500).send("Something went wrong");
+    //   }
+    // };
+
+    if (limit !== undefined && skip !== undefined) {
+      query = `SELECT * FROM books LIMIT ${limit} OFFSET ${skip}`;
     }
 
-    if (skip) {
-      query += " OFFSET $" + count;
-      values.push(skip);
-      count++;
-    }
-
-    const { rows } = await pool.query(query, values);
+    const { rows } = await pool.query(query);
     res.json(rows);
   } catch (error) {
     console.log(error.message);
